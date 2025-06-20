@@ -33,7 +33,7 @@ namespace FlexiQueryAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "SecureQueryAPI", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "FlexiQueryAPI", Version = "v1" });
                 options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
