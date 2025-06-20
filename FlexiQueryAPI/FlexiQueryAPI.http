@@ -1,0 +1,6 @@
+@FlexiQueryAPI_HostAddress = http://localhost:5137
+
+GET {{FlexiQueryAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
