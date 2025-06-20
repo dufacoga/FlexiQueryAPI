@@ -5,7 +5,7 @@
   <a href="https://github.com/dufacoga/FlexiQueryAPI/stargazers"><img src="https://img.shields.io/github/stars/dufacoga/FlexiQueryAPI"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/network/members"><img src="https://img.shields.io/github/forks/dufacoga/FlexiQueryAPI"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/commits/master"><img src="https://img.shields.io/github/last-commit/dufacoga/FlexiQueryAPI"/></a>
-  <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/contributing.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat"/></a>
+  <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dufacoga/FlexiQueryAPI"/></a>
 </p>
 
