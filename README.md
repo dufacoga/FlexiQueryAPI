@@ -6,7 +6,7 @@
   <a href="https://github.com/dufacoga/FlexiQueryAPI/network/members"><img src="https://img.shields.io/github/forks/dufacoga/FlexiQueryAPI"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/commits/master"><img src="https://img.shields.io/github/last-commit/dufacoga/FlexiQueryAPI"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat"/></a>
-  <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dufacoga/FlexiQueryAPI"/></a>
+  <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/LICENSE.txt"><img src="https://img.shields.io/github/license/dufacoga/FlexiQueryAPI"/></a>
 </p>
 
 FlexiQueryAPI is a generic, robust, and highly secure API that allows you to execute dynamic SQL queries via a single endpoint, with support for multiple database engines: **SQL Server**, **MySQL**, and **SQLite**.
