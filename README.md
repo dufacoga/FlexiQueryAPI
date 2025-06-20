@@ -153,9 +153,7 @@ dotnet run
 
 Visit Swagger UI at:
 
-```
 [https://flexiqueryapi.net/swagger](https://flexiqueryapi-dpdpewd4dzhfccau.centralus-01.azurewebsites.net/swagger)
-```
 
 ---
 
