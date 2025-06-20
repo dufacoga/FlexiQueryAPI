@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 using FlexiQueryAPI.Services;
 using FlexiQueryAPI.Security;
+using FlexiQueryAPI.Config;
 
 namespace FlexiQueryAPI
 {
@@ -11,26 +12,23 @@ namespace FlexiQueryAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Cargar configuración de base de datos
-            var dbProvider = builder.Configuration["DatabaseProvider"] ?? "SqlServer";
+            var dbOptions = builder.Configuration.Get<DbProviderOptions>()!;
+            builder.Services.AddSingleton(dbOptions);
 
-            // Inyectar servicio de ejecución según proveedor
             builder.Services.AddScoped<ISqlExecutor>(sp =>
             {
-                return dbProvider switch
+                return dbOptions.DatabaseProvider switch
                 {
-                    "MySQL" => new MySqlExecutor(builder.Configuration.GetConnectionString("MySQL")!),
-                    "SQLite" => new SqliteExecutor(builder.Configuration.GetConnectionString("SQLite")!),
-                    _ => new SqlServerExecutor(builder.Configuration.GetConnectionString("SqlServer")!)
+                    "MySQL" => new MySqlExecutor(dbOptions.ConnectionStrings.MySQL),
+                    "SQLite" => new SqliteExecutor(dbOptions.ConnectionStrings.SQLite),
+                    _ => new SqlServerExecutor(dbOptions.ConnectionStrings.SqlServer)
                 };
             });
 
-            // Agrega autenticación por API Key
             builder.Services.AddSingleton<ApiKeyValidator>();
             builder.Services.AddAuthentication("ApiKeyScheme")
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKeyScheme", null);
 
-            // Controladores y Swagger
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
