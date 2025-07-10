@@ -175,7 +175,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 👤 Author
+## 👤  Author 
 
 **Douglas Cortes**\
 💼 [LinkedIn](https://www.linkedin.com/in/dufacoga)\
