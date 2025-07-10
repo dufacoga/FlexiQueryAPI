@@ -19,32 +19,35 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new SqliteCommand(sql, connection);
-            var isSelect = sql.TrimStart().StartsWith("SELECT", StringComparison.OrdinalIgnoreCase);
+            await using var reader = await command.ExecuteReaderAsync();
 
-            if (isSelect)
+            var result = new List<Dictionary<string, object>>();
+
+            while (await reader.ReadAsync())
             {
-                await using var reader = await command.ExecuteReaderAsync();
-                var result = new List<Dictionary<string, object>>();
+                var row = new Dictionary<string, object>();
 
-                while (await reader.ReadAsync())
+                for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    var row = new Dictionary<string, object>();
-
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        row[reader.GetName(i)] = reader.IsDBNull(i) ? null! : reader.GetValue(i);
-                    }
-
-                    result.Add(row);
+                    row[reader.GetName(i)] = reader.IsDBNull(i) ? null! : reader.GetValue(i);
                 }
 
-                return result;
+                result.Add(row);
             }
-            else
-            {
-                var affectedRows = await command.ExecuteNonQueryAsync();
-                return new { affectedRows };
-            }
+
+            return result;
+        }
+
+        public async Task<int> ExecuteNonQueryAsync(string sql)
+        {
+            SqlSecurityValidator.Validate(sql);
+
+            await using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await using var command = new SqliteCommand(sql, connection);
+            var affectedRows = await command.ExecuteNonQueryAsync();
+            return affectedRows;
         }
     }
 }

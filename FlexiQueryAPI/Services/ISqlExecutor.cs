@@ -3,5 +3,6 @@
     public interface ISqlExecutor
     {
         Task<object?> ExecuteQueryAsync(string sql);
+        Task<int> ExecuteNonQueryAsync(string sql);
     }
 }
