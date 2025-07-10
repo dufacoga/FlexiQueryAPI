@@ -5,36 +5,37 @@
   <a href="https://github.com/dufacoga/FlexiQueryAPI/stargazers"><img src="https://img.shields.io/github/stars/dufacoga/FlexiQueryAPI"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/network/members"><img src="https://img.shields.io/github/forks/dufacoga/FlexiQueryAPI"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/commits/master"><img src="https://img.shields.io/github/last-commit/dufacoga/FlexiQueryAPI"/></a>
-  <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat"/></a>
+  <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg"/></a>
   <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/LICENSE.txt"><img src="https://img.shields.io/github/license/dufacoga/FlexiQueryAPI"/></a>
 </p>
 
-FlexiQueryAPI is a generic, robust, and highly secure API that allows you to execute dynamic SQL queries via a single endpoint, with support for multiple database engines: **SQL Server**, **MySQL**, and **SQLite**.
+**FlexiQueryAPI** is a generic, secure, and pluggable REST API that allows execution of raw SQL queries using HTTP methods. It supports **SELECT**, **INSERT**, **UPDATE**, and **DELETE** operations mapped to appropriate HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`) while enforcing query-type validation and basic protections.
 
 ---
 
 ## 🚀 Features
 
-- ✅ Generic API with support for SELECT, INSERT, UPDATE, and DELETE
-- 🔒 Built-in security with query validation and API Key authentication
-- ⚙️ Pluggable database engines: switch between SQL Server, MySQL, and SQLite via config
-- 🧪 Swagger integration for interactive testing
-- 🔧 Azure App Services deployment ready
+- ✅ RESTful API with support for CRUD operations via SQL strings
+- 🔒 Secure execution: query-type validation and API key authentication
+- 🔌 Plug-and-play database support: **SQL Server**, **MySQL**, **SQLite**
+- 🧪 Integrated Swagger UI for interactive testing
+- 🐳 Docker-ready & Azure App Services compatible
 
 ---
 
-## 🧰 Technologies Used
+## 🧰 Tech Stack
 
 - ASP.NET Core 8 Web API
-- Modern C#
-- MySqlConnector, Microsoft.Data.Sqlite, and Microsoft.Data.SqlClient
-- Swashbuckle/Swagger for API documentation
+- C# Modern practices
+- Dapper
+- Microsoft.Data.SqlClient / MySqlConnector / Microsoft.Data.Sqlite
+- Swagger / Swashbuckle for API documentation
 
 ---
 
-## ⚙️ Database Configuration
+## ⚙️ Configuration
 
-The provider is set in `appsettings.json`:
+Set your desired database in `appsettings.json`:
 
 ```json
 {
@@ -48,7 +49,11 @@ The provider is set in `appsettings.json`:
 }
 ```
 
-Change the value of `DatabaseProvider` to `SqlServer`, `MySQL`, or `SQLite` to switch engines.
+To switch databases, simply change the `"DatabaseProvider"` value to one of:
+
+- `"SqlServer"`
+- `"MySQL"`
+- `"SQLite"`
 
 ---
 
@@ -71,79 +76,61 @@ Change the value of `DatabaseProvider` to `SqlServer`, `MySQL`, or `SQLite` to s
 │   └── DbProviderOptions.cs
 ├── Program.cs
 ├── appsettings.json
-├── App_Data/
-│   ├── example.db (only if using SQLite)
+└── App_Data/
+    └── example.db  # Preloaded if using SQLite
 ```
 
 ---
 
-## 🔒 Security Validations
+## 🔒 Security
 
-The API includes protections against abuse:
+FlexiQueryAPI includes several layers of protection:
 
-- ✅ API Key authentication (`X-API-KEY` header)
-- ✅ Command whitelist: only `SELECT`, `INSERT`, `UPDATE`, and `DELETE` allowed
-- ✅ Blocks destructive queries: `DROP`, `TRUNCATE`, `ALTER`, `SHUTDOWN`
-- ✅ Log sanitization: never logs raw queries
-- ✅ Optional: extend to add pagination or timeouts for heavy SELECTs
+- ✅ API key validation via `X-API-KEY` header
+- ✅ Query whitelist: allows only `SELECT`, `INSERT`, `UPDATE`, `DELETE`
+- 🚫 Blocks destructive operations: `DROP`, `TRUNCATE`, `ALTER`, `SHUTDOWN`
+- 🧼 Sanitized logging to avoid leaking raw queries
+- ⏱️ Optional: you can extend with pagination and timeout enforcement
 
 ---
 
-## 📦 Example API Request
+## 📦 API Usage
 
-### Endpoint:
+### 📥 Example: `POST /api/sqlquery/execute`
 
-```http
-POST /api/sqlquery/execute
-```
-
-### Headers:
-
+**Headers:**
 ```
 Content-Type: application/json
 X-API-KEY: supersecret123
 ```
 
-### Body:
-
-```json
-{
-  "query": "SELECT * FROM Users"
-}
-```
-
-### Successful Response:
-
-```json
-[
-  {
-    "id": 1,
-    "firstName": "Emily",
-    "email": "emily.johnson@example.com",
-    ...
-  }
-]
-```
-
----
-
-## 🧪 Running Locally
-
-### 🧃 Sample Data
-
-If you're using SQLite, the included `example.db` file comes preloaded with:
-
-- 👤 200 users
-- 🛒 200 products
-- 🧺 50 shopping carts (with product relations)
-
-This allows you to immediately test queries like:
-
+**Body:**
 ```json
 {
   "query": "SELECT * FROM Users LIMIT 10"
 }
 ```
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "firstName": "Emily",
+    "email": "emily.johnson@example.com"
+  }
+]
+```
+
+> ℹ️ With the latest version, each HTTP method maps to its correct SQL command:
+> - `GET` → SELECT
+> - `POST` → INSERT
+> - `PUT` / `PATCH` → UPDATE
+> - `DELETE` → DELETE
+
+---
+
+## 🧪 Local Development
 
 ```bash
 git clone https://github.com/dufacoga/FlexiQueryAPI.git
@@ -151,32 +138,48 @@ cd FlexiQueryAPI
 dotnet run
 ```
 
-Visit Swagger UI at:
-
-[https://flexiqueryapi.net/swagger](https://flexiqueryapi-dpdpewd4dzhfccau.centralus-01.azurewebsites.net/swagger)
+Then open:📎 [`http://localhost:<port>/swagger`](http://localhost:<port>/swagger)
 
 ---
 
-## 🧩 Switching Database Provider
+## 🧃 Sample Data (for SQLite)
 
-Simply edit `appsettings.json`:
+If you're using the default `example.db`, it includes:
+
+- 👤 200 Users
+- 🛍️ 200 Products
+- 🛒 50 Carts with relations
+
+Example test query:
+
+```json
+{
+  "query": "SELECT * FROM Users LIMIT 10"
+}
+```
+
+---
+
+## 🔄 Switching Database Provider
+
+Update `appsettings.json`:
 
 ```json
 "DatabaseProvider": "MySQL"
 ```
 
-Make sure the matching connection string is configured correctly.
+Ensure the connection string is correct and the database is reachable.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+Licensed under the [MIT License](LICENSE).
 
 ---
 
-## 👤  Author 
+## 👤 Author
 
-**Douglas Cortes**\
-💼 [LinkedIn](https://www.linkedin.com/in/dufacoga)\
+**Douglas Cortes**  
+🔗 [LinkedIn](https://www.linkedin.com/in/dufacoga)  
 🌐 [dufacoga.github.io](https://dufacoga.github.io)
