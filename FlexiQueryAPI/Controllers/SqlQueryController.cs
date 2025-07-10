@@ -44,7 +44,6 @@ namespace FlexiQueryAPI.Controllers
             }
         }
 
-        // CREATE - INSERT
         [HttpPost("execute")]
         public async Task<IActionResult> ExecuteInsert([FromBody] SqlRequest request)
         {
@@ -66,7 +65,6 @@ namespace FlexiQueryAPI.Controllers
             }
         }
 
-        // UPDATE
         [HttpPut("execute")]
         public async Task<IActionResult> ExecuteUpdate([FromBody] SqlRequest request)
         {
@@ -88,7 +86,6 @@ namespace FlexiQueryAPI.Controllers
             }
         }
 
-        // DELETE
         [HttpDelete("execute")]
         public async Task<IActionResult> ExecuteDelete([FromBody] SqlRequest request)
         {

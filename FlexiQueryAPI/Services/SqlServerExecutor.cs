@@ -16,10 +16,10 @@ namespace FlexiQueryAPI.Services
         {
             SqlSecurityValidator.Validate(sql);
 
-            await using var connection = new SqliteConnection(_connectionString);
+            await using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            await using var command = new SqliteCommand(sql, connection);
+            await using var command = new SqlCommand(sql, connection);
             await using var reader = await command.ExecuteReaderAsync();
 
             var result = new List<Dictionary<string, object>>();
@@ -43,12 +43,11 @@ namespace FlexiQueryAPI.Services
         {
             SqlSecurityValidator.Validate(sql);
 
-            await using var connection = new SqliteConnection(_connectionString);
+            await using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            await using var command = new SqliteCommand(sql, connection);
-            var affectedRows = await command.ExecuteNonQueryAsync();
-            return affectedRows;
+            await using var command = new SqlCommand(sql, connection);
+            return await command.ExecuteNonQueryAsync();
         }
     }
 }
