@@ -33,6 +33,18 @@ namespace FlexiQueryAPI
             builder.Services.AddAuthentication("ApiKeyScheme")
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKeyScheme", null);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Restricted", policy =>
+                {
+                    policy.WithOrigins(
+                        "https://flexiqueryapi-dpdpewd4dzhfccau.centralus-01.azurewebsites.net"
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
+
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -63,6 +75,7 @@ namespace FlexiQueryAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("Restricted");
             app.UseAuthentication();
             app.UseAuthorization();
 
