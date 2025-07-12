@@ -1,6 +1,7 @@
 ﻿using FlexiQueryAPI.Interfaces;
 using FlexiQueryAPI.Models;
 using System.Text;
+using System.Text.Json;
 
 namespace FlexiQueryAPI.Utils
 {
@@ -12,7 +13,8 @@ namespace FlexiQueryAPI.Utils
             var paramNames = string.Join(", ", dto.Values.Keys.Select(k => "@" + k));
 
             var sql = $"INSERT INTO {dto.Table} ({columns}) VALUES ({paramNames});";
-            var parameters = dto.Values.ToDictionary(k => k.Key, v => v.Value);
+            var parameters = dto.Values.ToDictionary(k => k.Key, v => ConvertJsonElement(v.Value));
+
             return (sql, parameters);
         }
 
@@ -22,9 +24,10 @@ namespace FlexiQueryAPI.Utils
             var whereClause = string.Join(" AND ", dto.Where.Keys.Select(k => $"{k} = @w_{k}"));
 
             var sql = $"UPDATE {dto.Table} SET {setClause} WHERE {whereClause};";
-            var parameters = dto.Set.ToDictionary(k => k.Key, v => v.Value);
+            var parameters = dto.Set.ToDictionary(k => k.Key, v => ConvertJsonElement(v.Value));
+
             foreach (var kv in dto.Where)
-                parameters["w_" + kv.Key] = kv.Value;
+                parameters["w_" + kv.Key] = ConvertJsonElement(kv.Value);
 
             return (sql, parameters);
         }
@@ -33,7 +36,8 @@ namespace FlexiQueryAPI.Utils
         {
             var whereClause = string.Join(" AND ", dto.Where.Keys.Select(k => $"{k} = @{k}"));
             var sql = $"DELETE FROM {dto.Table} WHERE {whereClause};";
-            var parameters = dto.Where.ToDictionary(k => k.Key, v => v.Value);
+            var parameters = dto.Where.ToDictionary(k => k.Key, v => ConvertJsonElement(v.Value));
+
             return (sql, parameters);
         }
 
@@ -50,11 +54,31 @@ namespace FlexiQueryAPI.Utils
             {
                 var whereClause = string.Join(" AND ", dto.Where.Keys.Select(k => $"{k} = @{k}"));
                 sql.Append($" WHERE {whereClause}");
-                parameters = dto.Where.ToDictionary(k => k.Key, v => v.Value);
+                parameters = dto.Where.ToDictionary(k => k.Key, v => ConvertJsonElement(v.Value));
             }
 
             sql.Append(";");
             return (sql.ToString(), parameters);
+        }
+
+        private static object? ConvertJsonElement(object? value)
+        {
+            if (value is JsonElement json)
+            {
+                return json.ValueKind switch
+                {
+                    JsonValueKind.String => json.GetString(),
+                    JsonValueKind.Number => json.TryGetInt32(out var i) ? i :
+                                            json.TryGetDouble(out var d) ? d :
+                                            json.GetDecimal(),
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    JsonValueKind.Null => null,
+                    _ => json.ToString()
+                };
+            }
+
+            return value;
         }
     }
 }
