@@ -38,7 +38,7 @@ namespace FlexiQueryAPI
                 options.AddPolicy("Restricted", policy =>
                 {
                     policy.WithOrigins(
-                        "https://flexiqueryapi-dpdpewd4dzhfccau.centralus-01.azurewebsites.net"
+                        "https://localhost:7291"
                     )
                     .AllowAnyHeader()
                     .AllowAnyMethod();
