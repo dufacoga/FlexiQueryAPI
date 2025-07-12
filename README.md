@@ -9,33 +9,32 @@
   <a href="https://github.com/dufacoga/FlexiQueryAPI/blob/master/LICENSE.txt"><img src="https://img.shields.io/github/license/dufacoga/FlexiQueryAPI"/></a>
 </p>
 
-**FlexiQueryAPI** is a generic, secure, and pluggable REST API that allows execution of raw SQL queries using HTTP methods. It supports **SELECT**, **INSERT**, **UPDATE**, and **DELETE** operations mapped to appropriate HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`) while enforcing query-type validation and basic protections.
+**FlexiQueryAPI** is a secure and flexible REST API to perform basic SQL operations by sending generic DTOs, while the API constructs and executes the queries internally. Supports **SELECT**, **INSERT**, **UPDATE**, and **DELETE** using proper HTTP verbs.
 
 ---
 
 ## 🚀 Features
 
-- ✅ RESTful API with support for CRUD operations via SQL strings
-- 🔒 Secure execution: query-type validation and API key authentication
-- 🔌 Plug-and-play database support: **SQL Server**, **MySQL**, **SQLite**
-- 🧪 Integrated Swagger UI for interactive testing
-- 🐳 Docker-ready & Azure App Services compatible
+- ✅ Accepts generic DTOs for CRUD operations, internally transformed into SQL
+- 🔒 Strong query validation: allows only whitelisted commands and prevents injection
+- 🔌 Easily switch between **SQLite**, **SQL Server**, and **MySQL**
+- 🧪 Swagger UI for testing queries with parameters
+- 💡 Clean architecture with interfaces (`ISqlExecutor`, `IQueryBuilder`)
 
 ---
 
 ## 🧰 Tech Stack
 
 - ASP.NET Core 8 Web API
-- C# Modern practices
-- Dapper
-- Microsoft.Data.SqlClient / MySqlConnector / Microsoft.Data.Sqlite
-- Swagger / Swashbuckle for API documentation
+- C# modern conventions
+- Microsoft.Data.Sqlite / SqlClient / MySqlConnector
+- Swagger / Swashbuckle for API docs
 
 ---
 
 ## ⚙️ Configuration
 
-Set your desired database in `appsettings.json`:
+Example `appsettings.json`:
 
 ```json
 {
@@ -49,12 +48,6 @@ Set your desired database in `appsettings.json`:
 }
 ```
 
-To switch databases, simply change the `"DatabaseProvider"` value to one of:
-
-- `"SqlServer"`
-- `"MySQL"`
-- `"SQLite"`
-
 ---
 
 ## 📂 Project Structure
@@ -63,74 +56,57 @@ To switch databases, simply change the `"DatabaseProvider"` value to one of:
 📁 FlexiQueryAPI/
 ├── Controllers/
 │   └── SqlQueryController.cs
-├── Services/
+├── Interfaces/
 │   ├── ISqlExecutor.cs
+│   └── IQueryBuilder.cs
+├── Services/
+│   ├── SqliteExecutor.cs
 │   ├── SqlServerExecutor.cs
 │   ├── MySqlExecutor.cs
-│   ├── SqliteExecutor.cs
+│   └── QueryBuilder.cs
 │   └── SqlSecurityValidator.cs
+├── Dtos/
+│   ├── Insert.cs
+│   ├── Update.cs
+│   ├── Delete.cs
+│   └── Select.cs
 ├── Security/
 │   ├── ApiKeyAuthenticationHandler.cs
 │   └── ApiKeyValidator.cs
-├── Config/
-│   └── DbProviderOptions.cs
+├── Utils/
+│   └── QueryBuilder.cs
 ├── Program.cs
-├── appsettings.json
-└── App_Data/
-    └── example.db  # Preloaded if using SQLite
+└── appsettings.json
 ```
 
 ---
 
 ## 🔒 Security
 
-FlexiQueryAPI includes several layers of protection:
-
-- ✅ API key validation via `X-API-KEY` header
-- ✅ Query whitelist: allows only `SELECT`, `INSERT`, `UPDATE`, `DELETE`
-- 🚫 Blocks destructive operations: `DROP`, `TRUNCATE`, `ALTER`, `SHUTDOWN`
-- 🧼 Sanitized logging to avoid leaking raw queries
-- ⏱️ Optional: you can extend with pagination and timeout enforcement
+- ✅ Accepts only basic commands: SELECT, INSERT, UPDATE, DELETE
+- ✅ Rejects multiple statements, comments, or dangerous keywords
+- 🔐 Requires API key (`X-API-KEY` header)
+- 🔄 All input values parameterized to avoid SQL injection
 
 ---
 
-## 📦 API Usage
+## 📦 Sample Request (POST /api/sqlquery/select)
 
-### 📥 Example: `POST /api/sqlquery/execute`
-
-**Headers:**
-```
-Content-Type: application/json
-X-API-KEY: supersecret123
-```
-
-**Body:**
 ```json
 {
-  "query": "SELECT * FROM Users LIMIT 10"
+  "table": "Users",
+  "columns": ["Id", "Name", "Username"],
+  "where": {
+    "RoleId": 2
+  }
 }
 ```
 
-**Response:**
-```json
-[
-  {
-    "id": 1,
-    "firstName": "Emily",
-    "email": "emily.johnson@example.com"
-  }
-]
-```
-
-> ℹ️ With the latest version, each HTTP method maps to its correct SQL command:
-> - `GET` → SELECT
-> - `POST` → INSERT
-> - `PUT` / `PATCH` → UPDATE
-> - `DELETE` → DELETE
+> 🔄 Similarly, use `/insert`, `/update`, `/delete` endpoints with appropriate DTOs.
 
 ---
 
-## 🧪 Local Development
+## 🧪 Run Locally
 
 ```bash
 git clone https://github.com/dufacoga/FlexiQueryAPI.git
@@ -138,43 +114,29 @@ cd FlexiQueryAPI
 dotnet run
 ```
 
-Then open:📎 [`http://localhost:<port>/swagger`](http://localhost:<port>/swagger)
+Visit: [http://localhost:PORT/swagger](http://localhost:PORT/swagger)
 
 ---
 
-## 🧃 Sample Data (for SQLite)
+## 🧃 Sample Data
 
-If you're using the default `example.db`, it includes:
+The included `example.db` SQLite file provides:
 
 - 👤 200 Users
-- 🛍️ 200 Products
-- 🛒 50 Carts with relations
-
-Example test query:
-
-```json
-{
-  "query": "SELECT * FROM Users LIMIT 10"
-}
-```
+- 🛒 50 Shopping carts
+- 🛍️ Products linked by foreign keys
 
 ---
 
-## 🔄 Switching Database Provider
+## 🔄 Switch Database
 
-Update `appsettings.json`:
-
-```json
-"DatabaseProvider": "MySQL"
-```
-
-Ensure the connection string is correct and the database is reachable.
+Just update `"DatabaseProvider"` in `appsettings.json`.
 
 ---
 
 ## 📄 License
 
-Licensed under the [MIT License](LICENSE).
+[MIT License](LICENSE)
 
 ---
 
