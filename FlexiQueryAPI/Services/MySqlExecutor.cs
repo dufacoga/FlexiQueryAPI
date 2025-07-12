@@ -21,12 +21,7 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand(sql, connection);
-
-            foreach (var prop in parameters.GetType().GetProperties())
-            {
-                command.Parameters.AddWithValue("@" + prop.Name, prop.GetValue(parameters) ?? DBNull.Value);
-            }
-
+            AddParameters(command, parameters);
             await using var reader = await command.ExecuteReaderAsync();
 
             var result = new List<Dictionary<string, object>>();
@@ -54,13 +49,29 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand(sql, connection);
-
-            foreach (var prop in parameters.GetType().GetProperties())
-            {
-                command.Parameters.AddWithValue("@" + prop.Name, prop.GetValue(parameters) ?? DBNull.Value);
-            }
-
+            AddParameters(command, parameters);
             return await command.ExecuteNonQueryAsync();
+        }
+
+        private static void AddParameters(MySqlCommand command, object parameters)
+        {
+            var dictionary = GetParameterDictionary(parameters);
+
+            foreach (var param in dictionary)
+            {
+                command.Parameters.AddWithValue("@" + param.Key, param.Value ?? DBNull.Value);
+            }
+        }
+
+        private static Dictionary<string, object> GetParameterDictionary(object parameters)
+        {
+            if (parameters is Dictionary<string, object> dict)
+                return dict;
+
+            return parameters
+                .GetType()
+                .GetProperties()
+                .ToDictionary(p => p.Name, p => p.GetValue(parameters) ?? DBNull.Value);
         }
     }
 }
