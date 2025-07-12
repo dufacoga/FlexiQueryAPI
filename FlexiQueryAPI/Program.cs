@@ -3,6 +3,8 @@ using Microsoft.OpenApi.Models;
 using FlexiQueryAPI.Services;
 using FlexiQueryAPI.Security;
 using FlexiQueryAPI.Config;
+using FlexiQueryAPI.Interfaces;
+using FlexiQueryAPI.Utils;
 
 namespace FlexiQueryAPI
 {
@@ -24,6 +26,8 @@ namespace FlexiQueryAPI
                     _ => new SqlServerExecutor(dbOptions.ConnectionStrings.SqlServer)
                 };
             });
+
+            builder.Services.AddSingleton<IQueryBuilder, QueryBuilder>();
 
             builder.Services.AddSingleton<ApiKeyValidator>();
             builder.Services.AddAuthentication("ApiKeyScheme")
@@ -52,6 +56,11 @@ namespace FlexiQueryAPI
             });
 
             var app = builder.Build();
+
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHsts();
+            }
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

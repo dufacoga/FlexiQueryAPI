@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using FlexiQueryAPI.Interfaces;
+using Microsoft.Data.Sqlite;
 
 namespace FlexiQueryAPI.Services
 {
@@ -11,7 +12,7 @@ namespace FlexiQueryAPI.Services
             _connectionString = connectionString;
         }
 
-        public async Task<object?> ExecuteQueryAsync(string sql)
+        public async Task<object?> ExecuteQueryAsync(string sql, object parameters)
         {
             SqlSecurityValidator.Validate(sql);
 
@@ -19,6 +20,7 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new SqliteCommand(sql, connection);
+            AddParameters(command, parameters);
             await using var reader = await command.ExecuteReaderAsync();
 
             var result = new List<Dictionary<string, object>>();
@@ -38,7 +40,7 @@ namespace FlexiQueryAPI.Services
             return result;
         }
 
-        public async Task<int> ExecuteNonQueryAsync(string sql)
+        public async Task<int> ExecuteNonQueryAsync(string sql, object parameters)
         {
             SqlSecurityValidator.Validate(sql);
 
@@ -46,8 +48,29 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new SqliteCommand(sql, connection);
-            var affectedRows = await command.ExecuteNonQueryAsync();
-            return affectedRows;
+            AddParameters(command, parameters);
+            return await command.ExecuteNonQueryAsync();
+        }
+
+        private static void AddParameters(SqliteCommand command, object parameters)
+        {
+            var dictionary = GetParameterDictionary(parameters);
+
+            foreach (var param in dictionary)
+            {
+                command.Parameters.AddWithValue("@" + param.Key, param.Value ?? DBNull.Value);
+            }
+        }
+
+        private static Dictionary<string, object> GetParameterDictionary(object parameters)
+        {
+            if (parameters is Dictionary<string, object> dict)
+                return dict;
+
+            return parameters
+                .GetType()
+                .GetProperties()
+                .ToDictionary(p => p.Name, p => p.GetValue(parameters) ?? DBNull.Value);
         }
     }
 }

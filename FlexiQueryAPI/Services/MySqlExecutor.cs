@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using FlexiQueryAPI.Interfaces;
+using Microsoft.Data.Sqlite;
 using MySqlConnector;
 
 namespace FlexiQueryAPI.Services
@@ -12,7 +13,7 @@ namespace FlexiQueryAPI.Services
             _connectionString = connectionString;
         }
 
-        public async Task<object?> ExecuteQueryAsync(string sql)
+        public async Task<object?> ExecuteQueryAsync(string sql, object parameters)
         {
             SqlSecurityValidator.Validate(sql);
 
@@ -20,6 +21,12 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand(sql, connection);
+
+            foreach (var prop in parameters.GetType().GetProperties())
+            {
+                command.Parameters.AddWithValue("@" + prop.Name, prop.GetValue(parameters) ?? DBNull.Value);
+            }
+
             await using var reader = await command.ExecuteReaderAsync();
 
             var result = new List<Dictionary<string, object>>();
@@ -39,7 +46,7 @@ namespace FlexiQueryAPI.Services
             return result;
         }
 
-        public async Task<int> ExecuteNonQueryAsync(string sql)
+        public async Task<int> ExecuteNonQueryAsync(string sql, object parameters)
         {
             SqlSecurityValidator.Validate(sql);
 
@@ -47,6 +54,12 @@ namespace FlexiQueryAPI.Services
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand(sql, connection);
+
+            foreach (var prop in parameters.GetType().GetProperties())
+            {
+                command.Parameters.AddWithValue("@" + prop.Name, prop.GetValue(parameters) ?? DBNull.Value);
+            }
+
             return await command.ExecuteNonQueryAsync();
         }
     }
