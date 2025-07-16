@@ -140,7 +140,7 @@ Just update `"DatabaseProvider"` in `appsettings.json`.
 
 ---
 
-## 👤 Author
+## 👤 Author 
 
 **Douglas Cortes**  
 🔗 [LinkedIn](https://www.linkedin.com/in/dufacoga)  
